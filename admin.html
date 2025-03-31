@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Votação</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="scripts.js" defer></script>
+</head>
+<body>
+  <h1>Painel de Administração</h1>
+  <label>Nome da Votação: <input type="text" id="votacaoId"></label><br>
+  <label>Opção 1: <input type="text" id="musica1"></label><br>
+  <label>Opção 2: <input type="text" id="musica2"></label><br>
+  <label>Texto opcional: <input type="text" id="textoInfo"></label><br>
+  <label>Imagem (URL): <input type="text" id="imagemURL"></label><br>
+  <button onclick="gerarQRCodes()">Gerar QR Codes</button>
+  <div id="output"></div>
+  <a href="resultados.html" target="_blank">▶ Ver Resultados em Ecrã</a>
+</body>
+</html>
