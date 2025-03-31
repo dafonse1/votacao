@@ -1,3 +1,10 @@
+db.collection("votos").limit(1).get().then(() => {
+  console.log("Ligação ao Firebase OK");
+}).catch(err => {
+  console.error("Erro ao ligar ao Firebase:", err);
+});
+
+
 // Firebase config - substituir pelos teus dados
 const firebaseConfig = {
   apiKey: "AIzaSyCXbF3jkr02xm_sWz1bmgt0bErHWq_YaYk",
