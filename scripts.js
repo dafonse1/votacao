@@ -1,11 +1,12 @@
 // Firebase config - substituir pelos teus dados
 const firebaseConfig = {
-  apiKey: "A_TUA_API_KEY",
-  authDomain: "O_TEU_PROJECTO.firebaseapp.com",
-  projectId: "O_TEU_PROJECTO",
-  storageBucket: "O_TEU_PROJECTO.appspot.com",
-  messagingSenderId: "XXXXXXXXXXXX",
-  appId: "1:XXXXXXXXXXXX:web:XXXXXXXXXXXX"
+  apiKey: "AIzaSyCXbF3jkr02xm_sWz1bmgt0bErHWq_YaYk",
+  authDomain: "votacao-show.firebaseapp.com",
+  projectId: "votacao-show",
+  storageBucket: "votacao-show.firebasestorage.app",
+  messagingSenderId: "107375375432",
+  appId: "1:107375375432:web:85580dfacac1f1d689d47d",
+  measurementId: "G-DEMRG9FCCG"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
