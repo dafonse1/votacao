@@ -11,6 +11,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+
+
 // Votação
 if (window.location.pathname.includes("votar.html")) {
   const params = new URLSearchParams(window.location.search);
@@ -54,6 +56,15 @@ if (window.location.pathname.includes("resultados.html")) {
   });
 }
 
+const div = document.createElement("div");
+const url = `https://...`;
+
+const link = document.createElement("p");
+link.innerText = url;
+div.appendChild(link);
+
+QRCode.toCanvas(document.createElement("canvas"), url, (err, canvas) => {
+  
 // Admin - gerar QR codes
 function gerarQRCodes() {
   const votacaoId = document.getElementById("votacaoId").value;
