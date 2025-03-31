@@ -1,20 +1,14 @@
-db.collection("votos").limit(1).get().then(() => {
-  console.log("Ligação ao Firebase OK");
-}).catch(err => {
-  console.error("Erro ao ligar ao Firebase:", err);
-});
-
-
-// Firebase config - substituir pelos teus dados
+// Firebase config - NOVO PROJETO: show-448d0
 const firebaseConfig = {
-  apiKey: "AIzaSyCXbF3jkr02xm_sWz1bmgt0bErHWq_YaYk",
-  authDomain: "votacao-show.appspot.com",
-  projectId: "votacao-show",
-  storageBucket: "votacao-show.appspot.com",
-  messagingSenderId: "107375375432",
-  appId: "1:107375375432:web:85580dfacac1f1d689d47d",
-  measurementId: "G-DEMRG9FCCG"
+  apiKey: "AIzaSyDinh9iXkoxBeHQJ4F7F1sHKTtFVId58cs",
+  authDomain: "show-448d0.firebaseapp.com",
+  projectId: "show-448d0",
+  storageBucket: "show-448d0.appspot.com", // ⚠️ Corrigido aqui
+  messagingSenderId: "1094257467234",
+  appId: "1:1094257467234:web:284e06d3518e19af6cd63b",
+  measurementId: "G-4ZDGCVB868"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -30,20 +24,19 @@ if (window.location.pathname.includes("votar.html")) {
   } else if (localStorage.getItem(chave)) {
     document.getElementById("mensagem").innerText = "Já votaste nesta votação.";
   } else {
-db.collection("votos").add({
-  musica: musica,
-  votacao: votacao,
-  timestamp: firebase.firestore.FieldValue.serverTimestamp()
-})
-.then(() => {
-  localStorage.setItem(chave, "true");
-  document.getElementById("mensagem").innerText = `Votaste em "${musica}". Obrigado!`;
-})
-.catch((error) => {
-  console.error("Erro ao votar:", error);
-  document.getElementById("mensagem").innerText = "Erro ao votar. Verifica as permissões do Firebase.";
-});
-
+    db.collection("votos").add({
+      musica: musica,
+      votacao: votacao,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+      localStorage.setItem(chave, "true");
+      document.getElementById("mensagem").innerText = `Votaste em "${musica}". Obrigado!`;
+    })
+    .catch((error) => {
+      console.error("Erro ao votar:", error);
+      document.getElementById("mensagem").innerText = "Erro ao votar. Verifica as permissões do Firebase.";
+    });
   }
 }
 
@@ -91,9 +84,8 @@ function gerarQRCodes() {
 
   [m1, m2].forEach(musica => {
     const div = document.createElement("div");
-    const url = `https://votacao-j5ya07gzu-diogorosas-projects-ef1e36ce.vercel.app/votar.html?musica=${encodeURIComponent(musica)}&votacao=${votacaoId}`;
+    const url = `https://votacaoqrcode.pt/votar.html?musica=${encodeURIComponent(musica)}&votacao=${votacaoId}`;
 
-    // Mostrar o link visível
     const linkTexto = document.createElement("p");
     linkTexto.innerText = url;
     linkTexto.style.fontSize = "12px";
@@ -112,7 +104,7 @@ function gerarQRCodes() {
   });
 }
 
-// Admin - limpar votos de uma votação
+// Admin - limpar votação
 function limparVotacao() {
   const votacaoId = document.getElementById("votacaoId").value;
   if (!votacaoId) {
