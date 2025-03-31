@@ -80,7 +80,7 @@ function gerarQRCodes() {
     const div = document.createElement("div");
     const url = `https://votacao-j5ya07gzu-diogorosas-projects-ef1e36ce.vercel.app/votar.html?musica=${encodeURIComponent(musica)}&votacao=${votacaoId}`;
 
-    // Mostrar o link por texto
+    // Mostrar o link visível
     const linkTexto = document.createElement("p");
     linkTexto.innerText = url;
     linkTexto.style.fontSize = "12px";
@@ -97,4 +97,33 @@ function gerarQRCodes() {
       }
     });
   });
+}
+
+// Admin - limpar votos de uma votação
+function limparVotacao() {
+  const votacaoId = document.getElementById("votacaoId").value;
+  if (!votacaoId) {
+    alert("Tens de escrever o nome da votação que queres limpar.");
+    return;
+  }
+
+  if (!confirm(`Tens a certeza que queres apagar todos os votos de "${votacaoId}"?`)) {
+    return;
+  }
+
+  db.collection("votos").where("votacao", "==", votacaoId).get()
+    .then(snapshot => {
+      const batch = db.batch();
+      snapshot.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+      return batch.commit();
+    })
+    .then(() => {
+      alert(`Todos os votos da votação "${votacaoId}" foram apagados.`);
+    })
+    .catch(error => {
+      console.error("Erro ao apagar votos:", error);
+      alert("Ocorreu um erro ao tentar limpar os votos.");
+    });
 }
