@@ -8,7 +8,7 @@ db.collection("votos").limit(1).get().then(() => {
 // Firebase config - substituir pelos teus dados
 const firebaseConfig = {
   apiKey: "AIzaSyCXbF3jkr02xm_sWz1bmgt0bErHWq_YaYk",
-  authDomain: "votacao-show.firebaseapp.com",
+  authDomain: "votacao-show.appspot.com",
   projectId: "votacao-show",
   storageBucket: "votacao-show.appspot.com",
   messagingSenderId: "107375375432",
