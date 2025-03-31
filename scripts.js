@@ -11,8 +11,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-
-
 // Votação
 if (window.location.pathname.includes("votar.html")) {
   const params = new URLSearchParams(window.location.search);
@@ -56,15 +54,6 @@ if (window.location.pathname.includes("resultados.html")) {
   });
 }
 
-const div = document.createElement("div");
-const url = `https://...`;
-
-const link = document.createElement("p");
-link.innerText = url;
-div.appendChild(link);
-
-QRCode.toCanvas(document.createElement("canvas"), url, (err, canvas) => {
-  
 // Admin - gerar QR codes
 function gerarQRCodes() {
   const votacaoId = document.getElementById("votacaoId").value;
@@ -90,6 +79,14 @@ function gerarQRCodes() {
   [m1, m2].forEach(musica => {
     const div = document.createElement("div");
     const url = `https://votacao-j5ya07gzu-diogorosas-projects-ef1e36ce.vercel.app/votar.html?musica=${encodeURIComponent(musica)}&votacao=${votacaoId}`;
+
+    // Mostrar o link por texto
+    const linkTexto = document.createElement("p");
+    linkTexto.innerText = url;
+    linkTexto.style.fontSize = "12px";
+    linkTexto.style.color = "#555";
+    div.appendChild(linkTexto);
+
     QRCode.toCanvas(document.createElement("canvas"), url, (err, canvas) => {
       if (!err) {
         div.appendChild(canvas);
