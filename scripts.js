@@ -30,14 +30,20 @@ if (window.location.pathname.includes("votar.html")) {
   } else if (localStorage.getItem(chave)) {
     document.getElementById("mensagem").innerText = "Já votaste nesta votação.";
   } else {
-    db.collection("votos").add({
-      musica: musica,
-      votacao: votacao,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-      localStorage.setItem(chave, "true");
-      document.getElementById("mensagem").innerText = `Votaste em "${musica}". Obrigado!`;
-    });
+db.collection("votos").add({
+  musica: musica,
+  votacao: votacao,
+  timestamp: firebase.firestore.FieldValue.serverTimestamp()
+})
+.then(() => {
+  localStorage.setItem(chave, "true");
+  document.getElementById("mensagem").innerText = `Votaste em "${musica}". Obrigado!`;
+})
+.catch((error) => {
+  console.error("Erro ao votar:", error);
+  document.getElementById("mensagem").innerText = "Erro ao votar. Verifica as permissões do Firebase.";
+});
+
   }
 }
 
