@@ -78,7 +78,7 @@ function gerarQRCodes() {
 
   [m1, m2].forEach(musica => {
     const div = document.createElement("div");
-    const url = `https://teudominio.com/votar.html?musica=${encodeURIComponent(musica)}&votacao=${votacaoId}`;
+    const url = `https://votacao-j5ya07gzu-diogorosas-projects-ef1e36ce.vercel.app/votar.html?musica=${encodeURIComponent(musica)}&votacao=${votacaoId}`;
     QRCode.toCanvas(document.createElement("canvas"), url, (err, canvas) => {
       if (!err) {
         div.appendChild(canvas);
