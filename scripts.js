@@ -3,7 +3,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCXbF3jkr02xm_sWz1bmgt0bErHWq_YaYk",
   authDomain: "votacao-show.firebaseapp.com",
   projectId: "votacao-show",
-  storageBucket: "votacao-show.firebasestorage.app",
+  storageBucket: "votacao-show.appspot.com",
   messagingSenderId: "107375375432",
   appId: "1:107375375432:web:85580dfacac1f1d689d47d",
   measurementId: "G-DEMRG9FCCG"
