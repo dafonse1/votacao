@@ -107,18 +107,19 @@
 
     let unsubscribe = null;
 
-    db.collection("votacoes").doc(votacaoId).get().then(doc => {
-      if (doc.exists) {
-        const data = doc.data();
-        tituloEl.innerText = data.titulo || "Votação";
-        gerarQRCodes(data.op1, data.op2);
-        iniciarContagem(2 * 60, data.op1, data.op2);
-      } else {
-        tituloEl.innerText = "Votação não encontrada.";
-      }
-    }).catch(() => {
-      tituloEl.innerText = "Erro ao carregar votação.";
-    });
+db.collection("votacoes").doc(votacaoId).get().then(doc => {
+  if (doc.exists) {
+    const data = doc.data();
+    tituloEl.innerText = data.titulo || "Votação";
+    gerarQRCodes(data.op1, data.op2);
+    const tempo = data.duracao ? parseInt(data.duracao) : 120;
+    iniciarContagem(tempo, data.op1, data.op2);
+  } else {
+    tituloEl.innerText = "Votação não encontrada.";
+  }
+}).catch(() => {
+  tituloEl.innerText = "Erro ao carregar votação.";
+});
 
     function carregarVotos(op1, op2) {
       unsubscribe = db.collection("votos").onSnapshot(snapshot => {
