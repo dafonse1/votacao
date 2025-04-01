@@ -14,12 +14,12 @@
     }
     h1 {
       font-size: 2rem;
-      margin-bottom: 1rem;
+      margin-bottom: 2rem;
     }
     .barra {
       margin: 1rem auto;
       width: 80%;
-      background: #444;
+      background: #333;
       border-radius: 10px;
       overflow: hidden;
       height: 40px;
@@ -32,22 +32,6 @@
       padding-right: 10px;
       box-sizing: border-box;
       font-weight: bold;
-    }
-    .temporizador {
-      font-size: 1.5rem;
-      margin-top: 2rem;
-    }
-    .vencedor {
-      font-size: 2rem;
-      color: gold;
-      margin-top: 2rem;
-    }
-    button {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      font-size: 1rem;
-      padding: 0.5rem 1rem;
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -65,85 +49,60 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let interval;
-    let timeout;
+    const params = new URLSearchParams(window.location.search);
+    const votacaoId = params.get("votacao") || "";
 
-    function iniciarResultados() {
-      const params = new URLSearchParams(window.location.search);
-      const votacao = params.get("votacao") || "";
-      const tempoSegundos = 120; // 2 minutos
-      const output = document.getElementById("output");
-      const temporizador = document.getElementById("temporizador");
+    let op1 = "";
+    let op2 = "";
+    let titulo = "Votação em Curso";
 
-      const contagem = {};
-      let unsubscribe = db.collection("votos").onSnapshot(snapshot => {
-        contagemTotal = 0;
-        contagemLimpa = {};
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          if (data.votacao === votacao) {
-            contagemLimpa[data.musica] = (contagemLimpa[data.musica] || 0) + 1;
-            contagemTotal++;
-          }
-        });
-        output.innerHTML = "";
-        for (let m in contagemLimpa) {
-          const votos = contagemLimpa[m];
-          const percent = Math.round((votos / contagemTotal) * 100);
-          const barra = document.createElement("div");
-          barra.className = "barra";
+    const output = document.getElementById("output");
+    const tituloEl = document.getElementById("titulo");
 
-          const preenchimento = document.createElement("div");
-          preenchimento.className = "preenchimento";
-          preenchimento.style.width = percent + "%";
-          preenchimento.innerText = `${m} - ${percent}%`;
+    db.collection("votacoes").doc(votacaoId).get().then(doc => {
+      if (doc.exists) {
+        const data = doc.data();
+        titulo = data.titulo;
+        op1 = data.op1;
+        op2 = data.op2;
+        tituloEl.innerText = titulo;
+      }
+    });
 
-          barra.appendChild(preenchimento);
-          output.appendChild(barra);
+    db.collection("votos").onSnapshot(snapshot => {
+      let votos1 = 0;
+      let votos2 = 0;
+      let total = 0;
+
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        if (d.votacao === votacaoId) {
+          if (d.musica === op1) votos1++;
+          if (d.musica === op2) votos2++;
+          total++;
         }
       });
 
-      let tempoRestante = tempoSegundos;
-      temporizador.innerText = `Tempo restante: ${tempoRestante}s`;
+      const p1 = total > 0 ? Math.round((votos1 / total) * 100) : 0;
+      const p2 = total > 0 ? Math.round((votos2 / total) * 100) : 0;
 
-      interval = setInterval(() => {
-        tempoRestante--;
-        temporizador.innerText = `Tempo restante: ${tempoRestante}s`;
-      }, 1000);
+      output.innerHTML = "";
 
-      timeout = setTimeout(() => {
-        clearInterval(interval);
-        unsubscribe();
-        temporizador.innerText = "Votação terminada.";
-        mostrarVencedor(contagemLimpa);
-      }, tempoSegundos * 1000);
-    }
+      const barra1 = document.createElement("div");
+      barra1.className = "barra";
+      barra1.innerHTML = `<div class='preenchimento' style='width:${p1}%' >${op1}: ${p1}%</div>`;
 
-    function mostrarVencedor(contagem) {
-      let vencedor = "";
-      let max = -1;
-      for (let m in contagem) {
-        if (contagem[m] > max) {
-          vencedor = m;
-          max = contagem[m];
-        }
-      }
-      const msg = document.getElementById("vencedor");
-      msg.innerText = `Vencedor: ${vencedor}!`;
-    }
+      const barra2 = document.createElement("div");
+      barra2.className = "barra";
+      barra2.innerHTML = `<div class='preenchimento' style='width:${p2}%' >${op2}: ${p2}%</div>`;
 
-    function entrarFullscreen() {
-      document.documentElement.requestFullscreen();
-    }
-
-    window.onload = iniciarResultados;
+      output.appendChild(barra1);
+      output.appendChild(barra2);
+    });
   </script>
 </head>
 <body>
-  <h1>Votação em Tempo Real</h1>
+  <h1 id="titulo">Votação</h1>
   <div id="output"></div>
-  <div id="temporizador" class="temporizador"></div>
-  <div id="vencedor" class="vencedor"></div>
-  <button onclick="entrarFullscreen()">Fullscreen (F11)</button>
 </body>
 </html>
