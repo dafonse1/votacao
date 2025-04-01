@@ -83,7 +83,7 @@ function gerarQRCodes() {
         });
       });
 
-      // ✅ Atualizar contagem de votos no admin
+      // Mostrar contagem ao vivo no admin
       mostrarContagemVotos();
     })
     .catch(error => {
