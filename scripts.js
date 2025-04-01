@@ -82,6 +82,9 @@ function gerarQRCodes() {
           }
         });
       });
+
+      // ✅ Atualizar contagem de votos no admin
+      mostrarContagemVotos();
     })
     .catch(error => {
       console.error("Erro ao gerar votação:", error);
@@ -156,4 +159,29 @@ if (window.location.pathname.includes("votar.html")) {
       mensagemEl.innerText = "Erro ao registar o voto.";
     });
   }
+}
+
+// Mostrar contagem de votos no admin
+function mostrarContagemVotos() {
+  const votacaoId = document.getElementById("votacaoId").value;
+  const m1 = document.getElementById("musica1").value;
+  const m2 = document.getElementById("musica2").value;
+  const contador = document.getElementById("contadorVotos");
+
+  if (!votacaoId || !m1 || !m2 || !contador) return;
+
+  db.collection("votos").onSnapshot(snapshot => {
+    let v1 = 0;
+    let v2 = 0;
+
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      if (d.votacao === votacaoId) {
+        if (d.musica === m1) v1++;
+        if (d.musica === m2) v2++;
+      }
+    });
+
+    contador.innerText = `${m1}: ${v1} votos\n${m2}: ${v2} votos`;
+  });
 }
