@@ -120,3 +120,32 @@ function limparVotacao() {
       alert("Ocorreu um erro ao tentar limpar os votos.");
     });
 }
+// Votação - usada em votar.html
+if (window.location.pathname.includes("votar.html")) {
+  const params = new URLSearchParams(window.location.search);
+  const musica = params.get("musica");
+  const votacao = params.get("votacao");
+  const chave = "votou_" + votacao;
+
+  const mensagemEl = document.getElementById("mensagem");
+
+  if (!musica || !votacao) {
+    mensagemEl.innerText = "Link inválido.";
+  } else if (localStorage.getItem(chave)) {
+    mensagemEl.innerText = "Já votaste nesta votação.";
+  } else {
+    db.collection("votos").add({
+      musica: musica,
+      votacao: votacao,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+      localStorage.setItem(chave, "true");
+      mensagemEl.innerText = `Votaste em "${musica}". Obrigado!`;
+    })
+    .catch((err) => {
+      console.error("Erro ao votar:", err);
+      mensagemEl.innerText = "Erro ao registar o voto.";
+    });
+  }
+}
