@@ -6,18 +6,58 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
   <script src="scripts.js" defer></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
+      padding: 2rem;
+    }
+    label, input, textarea, button {
+      display: block;
+      margin: 1rem 0;
+      width: 100%;
+      max-width: 400px;
+    }
+    #painel {
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
-  <h1>Painel de Administração</h1>
-  <label>Nome da Votação: <input type="text" id="votacaoId"></label><br>
-  <label>Opção 1: <input type="text" id="musica1"></label><br>
-  <label>Opção 2: <input type="text" id="musica2"></label><br>
-  <label>Texto opcional: <input type="text" id="textoInfo"></label><br>
-  <label>Imagem (URL): <input type="text" id="imagemURL"></label><br>
-  <button onclick="gerarQRCodes()">Gerar QR Codes</button>
-  <button onclick="limparVotacao()">❌ Limpar Votação</button>
-  <div id="output"></div>
-  <a href="resultados.html" target="_blank">▶ Ver Resultados em Ecrã</a>
+  <div id="login">
+    <h2>Autenticação</h2>
+    <input type="password" id="senha" placeholder="Password">
+    <button onclick="verificarSenha()">Entrar</button>
+    <p id="erro" style="color: red;"></p>
+  </div>
+
+  <div id="painel">
+    <h1>Painel de Administração</h1>
+    <label>Nome da Votação: <input type="text" id="votacaoId"></label>
+    <label>Opção 1: <input type="text" id="musica1"></label>
+    <label>Opção 2: <input type="text" id="musica2"></label>
+    <label>Texto opcional: <input type="text" id="textoInfo"></label>
+    <label>Imagem (URL): <input type="text" id="imagemURL"></label>
+    <button onclick="gerarQRCodes()">Gerar QR Codes</button>
+    <button onclick="limparVotacao()">❌ Limpar Votação</button>
+    <div id="output"></div>
+    <a href="resultados.html" target="_blank">▶ Ver Resultados em Ecrã</a>
+  </div>
+
+  <script>
+    const PASSWORD = "qrcode2024"; // <- muda aqui se quiseres nova password
+
+    function verificarSenha() {
+      const senha = document.getElementById("senha").value;
+      if (senha === PASSWORD) {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("painel").style.display = "block";
+      } else {
+        document.getElementById("erro").innerText = "Password incorreta.";
+      }
+    }
+  </script>
 </body>
 </html>
