@@ -160,26 +160,31 @@ db.collection("votacoes").doc(votacaoId).get().then(doc => {
       });
     }
 
-    function gerarQRCodes(op1, op2) {
-      qrcodesEl.innerHTML = "";
-      [op1, op2].forEach(musica => {
-        const div = document.createElement("div");
-        const url = `https://votacaoqrcode.pt/votar.html?musica=${encodeURIComponent(musica)}&votacao=${votacaoId}`;
-        QRCode.toCanvas(url, (err, canvas) => {
-          if (!err) {
-            div.appendChild(canvas);
-            const label = document.createElement("p");
-            label.innerText = musica;
-            label.style.marginTop = "0.5rem";
-            label.style.color = "#fff";
-            label.style.fontWeight = "bold";
-            label.style.textAlign = "center";
-            div.appendChild(label);
-            qrcodesEl.appendChild(div);
-          }
-        });
-      });
-    }
+function gerarQRCodes(op1, op2) {
+  qrcodesEl.innerHTML = "";
+  const votacaoEncoded = encodeURIComponent(votacaoId); // ✅ corrigido aqui
+
+  [op1, op2].forEach(musica => {
+    const div = document.createElement("div");
+    const musicaEncoded = encodeURIComponent(musica); // ✅ corrigido aqui
+    const url = `https://votacaoqrcode.pt/votar.html?musica=${musicaEncoded}&votacao=${votacaoEncoded}`;
+
+    QRCode.toCanvas(url, (err, canvas) => {
+      if (!err) {
+        div.appendChild(canvas);
+        const label = document.createElement("p");
+        label.innerText = musica;
+        label.style.marginTop = "0.5rem";
+        label.style.color = "#fff";
+        label.style.fontWeight = "bold";
+        label.style.textAlign = "center";
+        div.appendChild(label);
+        qrcodesEl.appendChild(div);
+      }
+    });
+  });
+}
+
 
     function entrarFullscreen() {
       fullscreenBtn.style.display = "none";
