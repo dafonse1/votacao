@@ -6,21 +6,55 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
   <script src="scripts.js" defer></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #111;
-      color: #fff;
-      padding: 2rem;
-    }
-    label, input, button {
-      display: block;
-      margin: 1rem 0;
-      width: 100%;
-      max-width: 400px;
-    }
-    #painel { display: none; }
-  </style>
+<style>
+  body {
+    font-family: sans-serif;
+    background: #111;
+    color: #fff;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  #painel {
+    max-width: 600px;
+    width: 100%;
+    display: none;
+  }
+
+  label, input, button {
+    display: block;
+    margin: 1rem auto;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  #login {
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  h1, h2 {
+    text-align: center;
+  }
+
+  #output {
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  button {
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #fff;
+    color: #000;
+    font-weight: bold;
+  }
+</style>
+
 </head>
 
 <body>
