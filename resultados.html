@@ -33,9 +33,27 @@
       box-sizing: border-box;
       font-weight: bold;
     }
+    #fullscreenBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <h1 id="titulo">Votação</h1>
+  <div id="output"></div>
+  <button id="fullscreenBtn" onclick="entrarFullscreen()">Ecrã Completo</button>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDinh9iXkoxBeHQJ4F7F1sHKTtFVId58cs",
@@ -52,57 +70,60 @@
     const params = new URLSearchParams(window.location.search);
     const votacaoId = params.get("votacao") || "";
 
-    let op1 = "";
-    let op2 = "";
-    let titulo = "Votação em Curso";
-
     const output = document.getElementById("output");
     const tituloEl = document.getElementById("titulo");
 
     db.collection("votacoes").doc(votacaoId).get().then(doc => {
       if (doc.exists) {
         const data = doc.data();
-        titulo = data.titulo;
-        op1 = data.op1;
-        op2 = data.op2;
-        tituloEl.innerText = titulo;
+        tituloEl.innerText = data.titulo || "Votação";
+        carregarVotos(data.op1, data.op2);
+      } else {
+        tituloEl.innerText = "Votação não encontrada.";
       }
+    }).catch(() => {
+      tituloEl.innerText = "Erro ao carregar votação.";
     });
 
-    db.collection("votos").onSnapshot(snapshot => {
-      let votos1 = 0;
-      let votos2 = 0;
-      let total = 0;
+    function carregarVotos(op1, op2) {
+      db.collection("votos").onSnapshot(snapshot => {
+        let votos1 = 0;
+        let votos2 = 0;
+        let total = 0;
 
-      snapshot.forEach(doc => {
-        const d = doc.data();
-        if (d.votacao === votacaoId) {
-          if (d.musica === op1) votos1++;
-          if (d.musica === op2) votos2++;
-          total++;
-        }
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          if (d.votacao === votacaoId) {
+            if (d.musica === op1) votos1++;
+            if (d.musica === op2) votos2++;
+            total++;
+          }
+        });
+
+        const p1 = total > 0 ? Math.round((votos1 / total) * 100) : 0;
+        const p2 = total > 0 ? Math.round((votos2 / total) * 100) : 0;
+
+        output.innerHTML = "";
+
+        const barra1 = document.createElement("div");
+        barra1.className = "barra";
+        barra1.innerHTML = `<div class='preenchimento' style='width:${p1}%' >${op1}: ${p1}%</div>`;
+
+        const barra2 = document.createElement("div");
+        barra2.className = "barra";
+        barra2.innerHTML = `<div class='preenchimento' style='width:${p2}%' >${op2}: ${p2}%</div>`;
+
+        output.appendChild(barra1);
+        output.appendChild(barra2);
       });
+    }
 
-      const p1 = total > 0 ? Math.round((votos1 / total) * 100) : 0;
-      const p2 = total > 0 ? Math.round((votos2 / total) * 100) : 0;
-
-      output.innerHTML = "";
-
-      const barra1 = document.createElement("div");
-      barra1.className = "barra";
-      barra1.innerHTML = `<div class='preenchimento' style='width:${p1}%' >${op1}: ${p1}%</div>`;
-
-      const barra2 = document.createElement("div");
-      barra2.className = "barra";
-      barra2.innerHTML = `<div class='preenchimento' style='width:${p2}%' >${op2}: ${p2}%</div>`;
-
-      output.appendChild(barra1);
-      output.appendChild(barra2);
-    });
+    function entrarFullscreen() {
+      const el = document.documentElement;
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else if (el.msRequestFullscreen) el.msRequestFullscreen();
+    }
   </script>
-</head>
-<body>
-  <h1 id="titulo">Votação</h1>
-  <div id="output"></div>
 </body>
 </html>
