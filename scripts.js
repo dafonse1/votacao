@@ -58,11 +58,16 @@ function gerarQRCodes() {
 
       [m1, m2].forEach(musica => {
         const div = document.createElement("div");
-        const url = `https://votacaoqrcode.pt/votar.html?musica=${encodeURIComponent(musica)}&votacao=${encodeURIComponent(votacaoId)}`;
+
+        const musicaEncoded = encodeURIComponent(musica);
+        const votacaoEncoded = encodeURIComponent(votacaoId);
+        const url = `https://votacaoqrcode.pt/votar.html?musica=${musicaEncoded}&votacao=${votacaoEncoded}`;
+
         const linkTexto = document.createElement("p");
         linkTexto.innerText = url;
         linkTexto.style.fontSize = "12px";
-        linkTexto.style.color = "#555";
+        linkTexto.style.color = "#ccc";
+        linkTexto.style.marginBottom = "0.5rem";
         div.appendChild(linkTexto);
 
         QRCode.toCanvas(url, (err, canvas) => {
@@ -70,6 +75,8 @@ function gerarQRCodes() {
             div.appendChild(canvas);
             const label = document.createElement("p");
             label.innerText = musica;
+            label.style.textAlign = "center";
+            label.style.marginTop = "0.5rem";
             div.appendChild(label);
             output.appendChild(div);
           }
@@ -120,6 +127,7 @@ function limparVotacao() {
       alert("Ocorreu um erro ao tentar limpar os votos.");
     });
 }
+
 // Votação - usada em votar.html
 if (window.location.pathname.includes("votar.html")) {
   const params = new URLSearchParams(window.location.search);
