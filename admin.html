@@ -42,8 +42,8 @@
     <label>Imagem (URL): <input type="text" id="imagemURL"></label>
     <button onclick="gerarQRCodes()">Gerar QR Codes</button>
     <button onclick="limparVotacao()">❌ Limpar Votação</button>
+    <button onclick="abrirResultados()">▶ Ver Resultados ao Vivo</button>
     <div id="output"></div>
-    <a href="resultados.html" target="_blank">▶ Ver Resultados em Ecrã</a>
   </div>
 
   <script>
@@ -57,6 +57,20 @@
       } else {
         document.getElementById("erro").innerText = "Password incorreta.";
       }
+    }
+
+    function abrirResultados() {
+      const votacaoId = document.getElementById("votacaoId").value;
+      if (!votacaoId) {
+        alert("Escreve o nome da votação primeiro.");
+        return;
+      }
+      const win = window.open(`resultados.html?votacao=${encodeURIComponent(votacaoId)}`, "_blank");
+      win.onload = () => {
+        if (win.document.documentElement.requestFullscreen) {
+          win.document.documentElement.requestFullscreen();
+        }
+      };
     }
   </script>
 </body>
