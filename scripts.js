@@ -3,12 +3,11 @@ const firebaseConfig = {
   apiKey: "AIzaSyDinh9iXkoxBeHQJ4F7F1sHKTtFVId58cs",
   authDomain: "show-448d0.firebaseapp.com",
   projectId: "show-448d0",
-  storageBucket: "show-448d0.appspot.com", // ⚠️ Corrigido aqui
+  storageBucket: "show-448d0.appspot.com",
   messagingSenderId: "1094257467234",
   appId: "1:1094257467234:web:284e06d3518e19af6cd63b",
   measurementId: "G-4ZDGCVB868"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -70,6 +69,13 @@ function gerarQRCodes() {
   const output = document.getElementById("output");
   output.innerHTML = "";
 
+  // Guarda o título e opções no Firebase
+  db.collection("votacoes").doc(votacaoId).set({
+    titulo: texto,
+    op1: m1,
+    op2: m2
+  });
+
   if (imagem) {
     const img = document.createElement("img");
     img.src = imagem;
@@ -104,7 +110,7 @@ function gerarQRCodes() {
   });
 }
 
-// Admin - limpar votação
+// Admin - limpar votos de uma votação
 function limparVotacao() {
   const votacaoId = document.getElementById("votacaoId").value;
   if (!votacaoId) {
