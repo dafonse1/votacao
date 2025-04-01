@@ -61,7 +61,7 @@ function gerarQRCodes() {
         const url = `https://votacaoqrcode.pt/votar.html?musica=${musicaEncoded}&votacao=${votacaoEncoded}`;
 
         const linkTexto = document.createElement("p");
-        linkTexto.innerText = url;  // ✅ ESPAÇO CODIFICADO AQUI
+        linkTexto.innerText = url; // ✅ Texto corrigido sem espaços
         linkTexto.style.fontSize = "12px";
         linkTexto.style.color = "#ccc";
         linkTexto.style.marginBottom = "0.5rem";
