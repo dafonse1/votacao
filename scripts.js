@@ -11,7 +11,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Gerar QR Codes e guardar votação
 function gerarQRCodes() {
   const votacaoId = document.getElementById("votacaoId").value;
   const m1 = document.getElementById("musica1").value;
@@ -27,7 +26,6 @@ function gerarQRCodes() {
     return;
   }
 
-  // Apagar votos antigos
   db.collection("votos").where("votacao", "==", votacaoId).get()
     .then(snapshot => {
       const batch = db.batch();
@@ -35,7 +33,6 @@ function gerarQRCodes() {
       return batch.commit();
     })
     .then(() => {
-      // Guardar nova votação
       return db.collection("votacoes").doc(votacaoId).set({
         titulo: texto,
         op1: m1,
@@ -64,7 +61,7 @@ function gerarQRCodes() {
         const url = `https://votacaoqrcode.pt/votar.html?musica=${musicaEncoded}&votacao=${votacaoEncoded}`;
 
         const linkTexto = document.createElement("p");
-        linkTexto.innerText = url;
+        linkTexto.innerText = url;  // ✅ ESPAÇO CODIFICADO AQUI
         linkTexto.style.fontSize = "12px";
         linkTexto.style.color = "#ccc";
         linkTexto.style.marginBottom = "0.5rem";
@@ -83,7 +80,6 @@ function gerarQRCodes() {
         });
       });
 
-      // Mostrar contagem ao vivo no admin
       mostrarContagemVotos();
     })
     .catch(error => {
@@ -92,7 +88,8 @@ function gerarQRCodes() {
     });
 }
 
-// Abrir resultados com link correto
+// Restante código que já tens:
+
 function abrirResultados() {
   const votacaoId = document.getElementById("votacaoId").value;
   if (!votacaoId) {
@@ -102,7 +99,6 @@ function abrirResultados() {
   window.open(`resultados.html?votacao=${encodeURIComponent(votacaoId)}`, "_blank");
 }
 
-// Limpar votação manualmente
 function limparVotacao() {
   const votacaoId = document.getElementById("votacaoId").value;
   if (!votacaoId) {
@@ -117,9 +113,7 @@ function limparVotacao() {
   db.collection("votos").where("votacao", "==", votacaoId).get()
     .then(snapshot => {
       const batch = db.batch();
-      snapshot.forEach(doc => {
-        batch.delete(doc.ref);
-      });
+      snapshot.forEach(doc => batch.delete(doc.ref));
       return batch.commit();
     })
     .then(() => {
@@ -131,7 +125,6 @@ function limparVotacao() {
     });
 }
 
-// Votação - usada em votar.html
 if (window.location.pathname.includes("votar.html")) {
   const params = new URLSearchParams(window.location.search);
   const musica = params.get("musica");
@@ -161,7 +154,6 @@ if (window.location.pathname.includes("votar.html")) {
   }
 }
 
-// Mostrar contagem de votos no admin
 function mostrarContagemVotos() {
   const votacaoId = document.getElementById("votacaoId").value;
   const m1 = document.getElementById("musica1").value;
@@ -171,9 +163,7 @@ function mostrarContagemVotos() {
   if (!votacaoId || !m1 || !m2 || !contador) return;
 
   db.collection("votos").onSnapshot(snapshot => {
-    let v1 = 0;
-    let v2 = 0;
-
+    let v1 = 0, v2 = 0;
     snapshot.forEach(doc => {
       const d = doc.data();
       if (d.votacao === votacaoId) {
@@ -181,7 +171,6 @@ function mostrarContagemVotos() {
         if (d.musica === m2) v2++;
       }
     });
-
     contador.innerText = `${m1}: ${v1} votos\n${m2}: ${v2} votos`;
   });
 }
