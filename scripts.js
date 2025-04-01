@@ -58,7 +58,7 @@ function gerarQRCodes() {
 
       [m1, m2].forEach(musica => {
         const div = document.createElement("div");
-        const url = `https://votacaoqrcode.pt/votar.html?musica=${encodeURIComponent(musica)}&votacao=${votacaoId}`;
+        const url = `https://votacaoqrcode.pt/votar.html?musica=${encodeURIComponent(musica)}&votacao=${encodeURIComponent(votacaoId)}`;
         const linkTexto = document.createElement("p");
         linkTexto.innerText = url;
         linkTexto.style.fontSize = "12px";
