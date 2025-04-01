@@ -1,13 +1,149 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-  <title>Resultados</title>
+  <meta charset="UTF-8">
+  <title>Resultados da Votação</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .barra {
+      margin: 1rem auto;
+      width: 80%;
+      background: #444;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 40px;
+      position: relative;
+    }
+    .preenchimento {
+      height: 100%;
+      background: #0f0;
+      text-align: right;
+      padding-right: 10px;
+      box-sizing: border-box;
+      font-weight: bold;
+    }
+    .temporizador {
+      font-size: 1.5rem;
+      margin-top: 2rem;
+    }
+    .vencedor {
+      font-size: 2rem;
+      color: gold;
+      margin-top: 2rem;
+    }
+    button {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+    }
+  </style>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-  <script src="scripts.js" defer></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDinh9iXkoxBeHQJ4F7F1sHKTtFVId58cs",
+      authDomain: "show-448d0.firebaseapp.com",
+      projectId: "show-448d0",
+      storageBucket: "show-448d0.appspot.com",
+      messagingSenderId: "1094257467234",
+      appId: "1:1094257467234:web:284e06d3518e19af6cd63b",
+      measurementId: "G-4ZDGCVB868"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let interval;
+    let timeout;
+
+    function iniciarResultados() {
+      const params = new URLSearchParams(window.location.search);
+      const votacao = params.get("votacao") || "";
+      const tempoSegundos = 120; // 2 minutos
+      const output = document.getElementById("output");
+      const temporizador = document.getElementById("temporizador");
+
+      const contagem = {};
+      let unsubscribe = db.collection("votos").onSnapshot(snapshot => {
+        contagemTotal = 0;
+        contagemLimpa = {};
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.votacao === votacao) {
+            contagemLimpa[data.musica] = (contagemLimpa[data.musica] || 0) + 1;
+            contagemTotal++;
+          }
+        });
+        output.innerHTML = "";
+        for (let m in contagemLimpa) {
+          const votos = contagemLimpa[m];
+          const percent = Math.round((votos / contagemTotal) * 100);
+          const barra = document.createElement("div");
+          barra.className = "barra";
+
+          const preenchimento = document.createElement("div");
+          preenchimento.className = "preenchimento";
+          preenchimento.style.width = percent + "%";
+          preenchimento.innerText = `${m} - ${percent}%`;
+
+          barra.appendChild(preenchimento);
+          output.appendChild(barra);
+        }
+      });
+
+      let tempoRestante = tempoSegundos;
+      temporizador.innerText = `Tempo restante: ${tempoRestante}s`;
+
+      interval = setInterval(() => {
+        tempoRestante--;
+        temporizador.innerText = `Tempo restante: ${tempoRestante}s`;
+      }, 1000);
+
+      timeout = setTimeout(() => {
+        clearInterval(interval);
+        unsubscribe();
+        temporizador.innerText = "Votação terminada.";
+        mostrarVencedor(contagemLimpa);
+      }, tempoSegundos * 1000);
+    }
+
+    function mostrarVencedor(contagem) {
+      let vencedor = "";
+      let max = -1;
+      for (let m in contagem) {
+        if (contagem[m] > max) {
+          vencedor = m;
+          max = contagem[m];
+        }
+      }
+      const msg = document.getElementById("vencedor");
+      msg.innerText = `Vencedor: ${vencedor}!`;
+    }
+
+    function entrarFullscreen() {
+      document.documentElement.requestFullscreen();
+    }
+
+    window.onload = iniciarResultados;
+  </script>
 </head>
 <body>
-  <h1 id="titulo">Resultados da Votação</h1>
+  <h1>Votação em Tempo Real</h1>
   <div id="output"></div>
+  <div id="temporizador" class="temporizador"></div>
+  <div id="vencedor" class="vencedor"></div>
+  <button onclick="entrarFullscreen()">Fullscreen (F11)</button>
 </body>
 </html>
