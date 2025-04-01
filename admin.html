@@ -13,15 +13,13 @@
       color: #fff;
       padding: 2rem;
     }
-    label, input, textarea, button {
+    label, input, button {
       display: block;
       margin: 1rem 0;
       width: 100%;
       max-width: 400px;
     }
-    #painel {
-      display: none;
-    }
+    #painel { display: none; }
   </style>
 </head>
 
@@ -38,8 +36,9 @@
     <label>Nome da Votação: <input type="text" id="votacaoId"></label>
     <label>Opção 1: <input type="text" id="musica1"></label>
     <label>Opção 2: <input type="text" id="musica2"></label>
-    <label>Texto opcional: <input type="text" id="textoInfo"></label>
+    <label>Texto opcional (título): <input type="text" id="textoInfo"></label>
     <label>Imagem (URL): <input type="text" id="imagemURL"></label>
+    <label>Duração da votação (segundos): <input type="number" id="duracao" value="120"></label>
     <button onclick="gerarQRCodes()">Gerar QR Codes</button>
     <button onclick="limparVotacao()">❌ Limpar Votação</button>
     <button onclick="abrirResultados()">▶ Ver Resultados ao Vivo</button>
@@ -47,7 +46,7 @@
   </div>
 
   <script>
-    const PASSWORD = "qrcode2024"; // <- muda aqui se quiseres nova password
+    const PASSWORD = "qrcode2024"; // muda aqui se quiseres
 
     function verificarSenha() {
       const senha = document.getElementById("senha").value;
@@ -57,20 +56,6 @@
       } else {
         document.getElementById("erro").innerText = "Password incorreta.";
       }
-    }
-
-    function abrirResultados() {
-      const votacaoId = document.getElementById("votacaoId").value;
-      if (!votacaoId) {
-        alert("Escreve o nome da votação primeiro.");
-        return;
-      }
-      const win = window.open(`resultados.html?votacao=${encodeURIComponent(votacaoId)}`, "_blank");
-      win.onload = () => {
-        if (win.document.documentElement.requestFullscreen) {
-          win.document.documentElement.requestFullscreen();
-        }
-      };
     }
   </script>
 </body>
