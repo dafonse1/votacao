@@ -37,7 +37,14 @@ function gerarQRCodes() {
         titulo: texto,
         op1: m1,
         op2: m2,
-        duracao: duracao
+        duracao: duracao,
+        terminou: false  // podes usar isto para sinalizar fim da votação
+      });
+    })
+    .then(() => {
+      // ✅ Atualizar a votação ativa no Firebase (usado pelo Raspberry Pi)
+      return db.collection("sistema").doc("estado").set({
+        votacao_ativa: votacaoId
       });
     })
     .then(() => {
@@ -55,6 +62,7 @@ function gerarQRCodes() {
 
       [m1, m2].forEach(musica => {
         const div = document.createElement("div");
+
         const musicaEncoded = encodeURIComponent(musica);
         const votacaoEncoded = encodeURIComponent(votacaoId);
         const url = `https://votacaoqrcode.pt/votar.html?musica=${musicaEncoded}&votacao=${votacaoEncoded}`;
@@ -86,6 +94,7 @@ function gerarQRCodes() {
       alert("Erro ao gerar a votação.");
     });
 }
+
 
 // Contagem dos votos da votação atual
 function mostrarContagemVotos() {
