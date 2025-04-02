@@ -88,14 +88,17 @@
     const listaEl = document.getElementById("listaMusicas");
     const respostaEl = document.getElementById("resposta");
 
-    function getVotadas() {
-      return JSON.parse(localStorage.getItem("votadas") || "[]");
+    // Anti-spam: só 1 voto por utilizador
+    function getVotada() {
+      return localStorage.getItem("musica_votada");
     }
 
     function setVotada(nome) {
-      const votos = getVotadas();
-      votos.push(nome);
-      localStorage.setItem("votadas", JSON.stringify(votos));
+      localStorage.setItem("musica_votada", nome);
+    }
+
+    function jaVotou() {
+      return !!getVotada();
     }
 
     function adicionarMusica() {
@@ -105,9 +108,8 @@
         return;
       }
 
-      const jaVotadas = getVotadas();
-      if (jaVotadas.includes(nome)) {
-        respostaEl.innerText = "Já votaste nesta música.";
+      if (jaVotou()) {
+        respostaEl.innerText = "Já fizeste o teu pedido ou voto.";
         return;
       }
 
@@ -130,16 +132,14 @@
     }
 
     function votarMusica(nome) {
-      const jaVotadas = getVotadas();
-      if (jaVotadas.includes(nome)) {
-        alert("Já votaste nesta música.");
+      if (jaVotou()) {
+        alert("Já votaste numa música.");
         return;
       }
 
       db.collection("pedidos").where("musica", "==", nome).get().then(snapshot => {
         snapshot.forEach(doc => {
-          const ref = doc.ref;
-          ref.update({
+          doc.ref.update({
             votos: firebase.firestore.FieldValue.increment(1)
           }).then(() => {
             setVotada(nome);
@@ -154,15 +154,16 @@
         let total = 0;
         snapshot.forEach(doc => total += doc.data().votos || 0);
 
+        const votada = getVotada();
+
         snapshot.forEach(doc => {
           const data = doc.data();
           const nome = data.musica;
           const votos = data.votos || 0;
           const percent = total > 0 ? Math.round((votos / total) * 100) : 0;
-          const votadas = getVotadas();
 
           const div = document.createElement("div");
-          div.className = "musica" + (votadas.includes(nome) ? " votado" : "");
+          div.className = "musica" + (votada === nome ? " votado" : "");
 
           const titulo = document.createElement("strong");
           titulo.innerText = nome;
@@ -174,8 +175,8 @@
           div.appendChild(barra);
 
           const botao = document.createElement("button");
-          botao.innerText = votadas.includes(nome) ? "Já votaste" : "Votar";
-          botao.disabled = votadas.includes(nome);
+          botao.innerText = votada === nome ? "Já votaste" : "Votar";
+          botao.disabled = !!votada;
           botao.onclick = () => votarMusica(nome);
           div.appendChild(botao);
 
