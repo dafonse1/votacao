@@ -205,10 +205,13 @@ function limparPedidos() {
       return batch.commit();
     })
     .then(() => {
-      alert("Todos os pedidos foram apagados.");
+      // ⚠️ Limpar anti-spam local no browser
+      localStorage.removeItem("musica_votada");
+      alert("Todos os pedidos foram apagados. Agora é possível votar novamente.");
     })
     .catch(error => {
       console.error("Erro ao apagar pedidos:", error);
       alert("Erro ao apagar os pedidos.");
     });
 }
+
