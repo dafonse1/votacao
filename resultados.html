@@ -1,39 +1,99 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <title>Resultados da Votação</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Votação Musical</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #111;
-      color: #fff;
-      text-align: center;
+    html, body {
       margin: 0;
-      padding: 2rem;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.7);
+      width: 90%;
+      max-width: 1100px;
+      padding: 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      color: white;
+    }
+
     h1 {
-      font-size: 2rem;
+      font-size: 2.2rem;
       margin-bottom: 2rem;
     }
-    .barra {
-      margin: 1rem auto;
-      width: 80%;
+
+    .vote-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .option {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      justify-content: space-between;
+    }
+
+    .option canvas {
+      width: 160px;
+      height: 160px;
+      margin-bottom: 1rem;
+      border: 8px solid white;
+      border-radius: 0.75rem;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .option h2 {
+      margin: 0.5rem 0 1rem 0;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    .progress-container {
       background: #333;
-      border-radius: 10px;
+      border-radius: 0.75rem;
       overflow: hidden;
-      height: 40px;
+      height: 26px;
+      width: 100%;
+      max-width: 300px;
       position: relative;
     }
-    .preenchimento {
+
+    .progress-bar {
       height: 100%;
-      background: #0f0;
-      text-align: right;
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+      transition: width 0.5s;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
       padding-right: 10px;
-      box-sizing: border-box;
+      color: #fff;
       font-weight: bold;
-      transition: width 0.5s ease;
     }
+
+    #temporizador, #vencedor {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+    }
+
     #fullscreenBtn {
       position: fixed;
       bottom: 20px;
@@ -47,39 +107,34 @@
       cursor: pointer;
       z-index: 100;
     }
-    .qrcodes {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-    .qrcodes canvas {
-      background: #fff;
-      padding: 1rem;
-      border-radius: 8px;
-    }
-    #temporizador {
-      margin-top: 1rem;
-      font-size: 1.2rem;
-      color: #aaa;
-    }
-    #vencedor {
-      font-size: 2rem;
-      color: gold;
-      margin-top: 3rem;
-      display: none;
-    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
-  <h1 id="titulo">Votação</h1>
-  <div id="output"></div>
-  <div class="qrcodes" id="qrcodes"></div>
-  <div id="temporizador">Tempo restante: 2:00</div>
-  <div id="vencedor"></div>
+  <div class="overlay">
+    <h1 id="titulo">Qual a próxima música?</h1>
+    <div class="vote-options">
+      <div class="option" id="opcao1">
+        <canvas id="qrcode1"></canvas>
+        <h2 id="nome1">Opção 1</h2>
+        <div class="progress-container">
+          <div class="progress-bar" id="barra1">0%</div>
+        </div>
+      </div>
+
+      <div class="option" id="opcao2">
+        <canvas id="qrcode2"></canvas>
+        <h2 id="nome2">Opção 2</h2>
+        <div class="progress-container">
+          <div class="progress-bar" id="barra2">0%</div>
+        </div>
+      </div>
+    </div>
+    <div id="temporizador">Tempo restante: 2:00</div>
+    <div id="vencedor"></div>
+  </div>
   <button id="fullscreenBtn" onclick="entrarFullscreen()">Ecrã Completo</button>
 
   <script>
@@ -90,7 +145,6 @@
       storageBucket: "show-448d0.appspot.com",
       messagingSenderId: "1094257467234",
       appId: "1:1094257467234:web:284e06d3518e19af6cd63b",
-      measurementId: "G-4ZDGCVB868"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -98,106 +152,67 @@
     const params = new URLSearchParams(window.location.search);
     const votacaoId = params.get("votacao") || "";
 
-    const output = document.getElementById("output");
     const tituloEl = document.getElementById("titulo");
-    const qrcodesEl = document.getElementById("qrcodes");
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
-    const tempoEl = document.getElementById("temporizador");
+    const barra1 = document.getElementById("barra1");
+    const barra2 = document.getElementById("barra2");
+    const nome1El = document.getElementById("nome1");
+    const nome2El = document.getElementById("nome2");
     const vencedorEl = document.getElementById("vencedor");
+    const tempoEl = document.getElementById("temporizador");
 
     let unsubscribe = null;
 
-db.collection("votacoes").doc(votacaoId).get().then(doc => {
-  if (doc.exists) {
-    const data = doc.data();
-    tituloEl.innerText = data.titulo || "Votação";
-    gerarQRCodes(data.op1, data.op2);
-    const tempo = data.duracao ? parseInt(data.duracao) : 120;
-    iniciarContagem(tempo, data.op1, data.op2);
-  } else {
-    tituloEl.innerText = "Votação não encontrada.";
-  }
-}).catch(() => {
-  tituloEl.innerText = "Erro ao carregar votação.";
-});
+    db.collection("votacoes").doc(votacaoId).get().then(doc => {
+      if (doc.exists) {
+        const data = doc.data();
+        const op1 = data.op1;
+        const op2 = data.op2;
+        const duracao = data.duracao || 120;
 
-    function carregarVotos(op1, op2) {
-      unsubscribe = db.collection("votos").onSnapshot(snapshot => {
-        let votos1 = 0;
-        let votos2 = 0;
-        let total = 0;
+        tituloEl.innerText = data.titulo || "Votação";
+        nome1El.innerText = op1;
+        nome2El.innerText = op2;
 
-        snapshot.forEach(doc => {
-          const d = doc.data();
-          if (d.votacao === votacaoId) {
-            if (d.musica === op1) votos1++;
-            if (d.musica === op2) votos2++;
-            total++;
-          }
-        });
+        gerarQR(op1, "qrcode1");
+        gerarQR(op2, "qrcode2");
 
-        const p1 = total > 0 ? Math.round((votos1 / total) * 100) : 0;
-        const p2 = total > 0 ? Math.round((votos2 / total) * 100) : 0;
-
-        output.innerHTML = "";
-
-        const barra1 = document.createElement("div");
-        barra1.className = "barra";
-        barra1.innerHTML = `<div class='preenchimento' style='width:${p1}%' >${op1}: ${p1}%</div>`;
-
-        const barra2 = document.createElement("div");
-        barra2.className = "barra";
-        barra2.innerHTML = `<div class='preenchimento' style='width:${p2}%' >${op2}: ${p2}%</div>`;
-
-        output.appendChild(barra1);
-        output.appendChild(barra2);
-
-        // Guardar info para o final
-        output.dataset.p1 = p1;
-        output.dataset.p2 = p2;
-        output.dataset.op1 = op1;
-        output.dataset.op2 = op2;
-      });
-    }
-
-function gerarQRCodes(op1, op2) {
-  qrcodesEl.innerHTML = "";
-  const votacaoEncoded = encodeURIComponent(votacaoId); // ✅ corrigido aqui
-
-  [op1, op2].forEach(musica => {
-    const div = document.createElement("div");
-    const musicaEncoded = encodeURIComponent(musica); // ✅ corrigido aqui
-    const url = `https://votacaoqrcode.pt/votar.html?musica=${musicaEncoded}&votacao=${votacaoEncoded}`;
-
-    QRCode.toCanvas(url, (err, canvas) => {
-      if (!err) {
-        div.appendChild(canvas);
-        const label = document.createElement("p");
-        label.innerText = musica;
-        label.style.marginTop = "0.5rem";
-        label.style.color = "#fff";
-        label.style.fontWeight = "bold";
-        label.style.textAlign = "center";
-        div.appendChild(label);
-        qrcodesEl.appendChild(div);
+        iniciarContagem(duracao, op1, op2);
+      } else {
+        tituloEl.innerText = "Votação não encontrada.";
       }
     });
-  });
-}
 
-
-    function entrarFullscreen() {
-      fullscreenBtn.style.display = "none";
-      const el = document.documentElement;
-      if (el.requestFullscreen) el.requestFullscreen();
-      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-      else if (el.msRequestFullscreen) el.msRequestFullscreen();
+    function gerarQR(musica, canvasId) {
+      const url = `https://votacaoqrcode.pt/votar.html?musica=${encodeURIComponent(musica)}&votacao=${encodeURIComponent(votacaoId)}`;
+      QRCode.toCanvas(document.getElementById(canvasId), url);
     }
 
     function iniciarContagem(segundos, op1, op2) {
-      carregarVotos(op1, op2);
-      let tempo = segundos;
+      unsubscribe = db.collection("votos").onSnapshot(snapshot => {
+        let v1 = 0, v2 = 0;
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          if (d.votacao === votacaoId) {
+            if (d.musica === op1) v1++;
+            if (d.musica === op2) v2++;
+          }
+        });
 
+        const total = v1 + v2;
+        const p1 = total > 0 ? Math.round((v1 / total) * 100) : 0;
+        const p2 = total > 0 ? Math.round((v2 / total) * 100) : 0;
+
+        barra1.style.width = `${p1}%`;
+        barra1.innerText = `${p1}%`;
+
+        barra2.style.width = `${p2}%`;
+        barra2.innerText = `${p2}%`;
+
+        barra1.dataset.votos = v1;
+        barra2.dataset.votos = v2;
+      });
+
+      let tempo = segundos;
       const intervalo = setInterval(() => {
         const min = String(Math.floor(tempo / 60)).padStart(2, "0");
         const sec = String(tempo % 60).padStart(2, "0");
@@ -205,28 +220,35 @@ function gerarQRCodes(op1, op2) {
 
         if (tempo <= 0) {
           clearInterval(intervalo);
+          if (unsubscribe) unsubscribe();
           tempoEl.innerText = "Votação encerrada!";
-          if (unsubscribe) unsubscribe(); // parar atualizações
-
-          // Mostrar vencedor
-          const p1 = parseInt(output.dataset.p1 || 0);
-          const p2 = parseInt(output.dataset.p2 || 0);
-          const op1txt = output.dataset.op1 || "Opção 1";
-          const op2txt = output.dataset.op2 || "Opção 2";
-
-          if (p1 > p2) {
-            vencedorEl.innerText = `🎉 ${op1txt} venceu com ${p1}%!`;
-          } else if (p2 > p1) {
-            vencedorEl.innerText = `🎉 ${op2txt} venceu com ${p2}%!`;
-          } else {
-            vencedorEl.innerText = `⚖️ Empate! Ambas têm ${p1}%`;
-          }
-
-          vencedorEl.style.display = "block";
+          mostrarVencedor();
         }
-
         tempo--;
       }, 1000);
+    }
+
+    function mostrarVencedor() {
+      const p1 = parseInt(barra1.innerText);
+      const p2 = parseInt(barra2.innerText);
+      const op1 = nome1El.innerText;
+      const op2 = nome2El.innerText;
+
+      if (p1 > p2) {
+        vencedorEl.innerText = `🎉 ${op1} venceu com ${p1}%!`;
+      } else if (p2 > p1) {
+        vencedorEl.innerText = `🎉 ${op2} venceu com ${p2}%!`;
+      } else {
+        vencedorEl.innerText = `⚖️ Empate! Ambas têm ${p1}%`;
+      }
+    }
+
+    function entrarFullscreen() {
+      fullscreenBtn.style.display = "none";
+      const el = document.documentElement;
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else if (el.msRequestFullscreen) el.msRequestFullscreen();
     }
   </script>
 </body>
