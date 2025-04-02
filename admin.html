@@ -6,55 +6,67 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
   <script src="scripts.js" defer></script>
-<style>
-  body {
-    font-family: sans-serif;
-    background: #111;
-    color: #fff;
-    padding: 2rem;
-    display: flex;
-    justify-content: center;
-  }
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+    }
 
-  #painel {
-    max-width: 600px;
-    width: 100%;
-    display: none;
-  }
+    #painel {
+      max-width: 600px;
+      width: 100%;
+      display: none;
+    }
 
-  label, input, button {
-    display: block;
-    margin: 1rem auto;
-    width: 100%;
-    max-width: 400px;
-  }
+    label, input, button {
+      display: block;
+      margin: 1rem auto;
+      width: 100%;
+      max-width: 400px;
+    }
 
-  #login {
-    text-align: center;
-    width: 100%;
-    max-width: 400px;
-  }
+    #login {
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
 
-  h1, h2 {
-    text-align: center;
-  }
+    h1, h2 {
+      text-align: center;
+    }
 
-  #output {
-    margin-top: 2rem;
-    text-align: center;
-  }
+    #output {
+      margin-top: 2rem;
+      text-align: center;
+    }
 
-  button {
-    padding: 10px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    background-color: #fff;
-    color: #000;
-    font-weight: bold;
-  }
-</style>
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #fff;
+      color: #000;
+      font-weight: bold;
+    }
 
+    #listaPedidos {
+      list-style: none;
+      padding: 0;
+      text-align: center;
+    }
+
+    #listaPedidos li {
+      margin: 0.5rem 0;
+      background: #222;
+      padding: 10px;
+      border-radius: 6px;
+    }
+  </style>
 </head>
 
 <body>
@@ -78,32 +90,27 @@
     <button onclick="abrirResultados()">▶ Ver Resultados ao Vivo</button>
     <div id="contadorVotos" style="margin-top: 2rem; font-weight: bold; color: #0f0;"></div>
     <div id="output"></div>
-  </div>
-
-
-
-<script>
-  const PASSWORD = "qrcode2024"; // muda aqui se quiseres
-
-  function verificarSenha() {
-    const senha = document.getElementById("senha").value;
-    if (senha === PASSWORD) {
-      document.getElementById("login").style.display = "none";
-      document.getElementById("painel").style.display = "block";
-
-      // ✅ Agora sim, ativa os pedidos só após o login correto!
-      mostrarPedidosAoVivo();
-
-    } else {
-      document.getElementById("erro").innerText = "Password incorreta.";
-    }
-  }
-</script>
 
     <div id="pedidosMusicas" style="margin-top:3rem;">
-  <h2>🎵 Pedidos de Músicas ao Vivo:</h2>
-  <ul id="listaPedidos"></ul>
-</div>
+      <h2>🎵 Pedidos de Músicas ao Vivo:</h2>
+      <button onclick="limparPedidos()" style="background:#f33; color:white;">🗑️ Limpar Pedidos</button>
+      <ul id="listaPedidos"></ul>
+    </div>
+  </div>
 
+  <script>
+    const PASSWORD = "qrcode2024"; // muda aqui a tua password
+
+    function verificarSenha() {
+      const senha = document.getElementById("senha").value;
+      if (senha === PASSWORD) {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("painel").style.display = "block";
+        mostrarPedidosAoVivo(); // só ativa os pedidos após login
+      } else {
+        document.getElementById("erro").innerText = "Password incorreta.";
+      }
+    }
+  </script>
 </body>
 </html>
