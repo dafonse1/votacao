@@ -190,3 +190,24 @@ function mostrarPedidosAoVivo() {
       });
     });
 }
+
+function limparPedidos() {
+  if (!confirm("Tens a certeza que queres apagar todos os pedidos de música?")) return;
+
+  db.collection("pedidos").get()
+    .then(snapshot => {
+      const batch = db.batch();
+      snapshot.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+      return batch.commit();
+    })
+    .then(() => {
+      alert("Todos os pedidos foram apagados.");
+    })
+    .catch(error => {
+      console.error("Erro ao apagar pedidos:", error);
+      alert("Erro ao apagar os pedidos.");
+    });
+}
+
