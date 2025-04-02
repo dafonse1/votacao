@@ -5,45 +5,186 @@
   <title>Pedir Música</title>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-</head>
-<body style="background:#111; color:#fff; font-family:sans-serif; padding:2rem; text-align:center;">
-  <h2>Pede uma Música 🎵</h2>
-  <input id="pedido" type="text" placeholder="Nome da música/artista" style="padding:10px;width:80%;max-width:400px;border-radius:8px;border:none;margin-top:1rem;">
-  <button onclick="enviarPedido()" style="padding:10px 20px;margin-top:1rem;border:none;background:#0f0;color:#000;border-radius:8px;font-weight:bold;">Enviar</button>
-  <p id="resposta"></p>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDinh9iXkoxBeHQJ4F7F1sHKTtFVId58cs",
-    authDomain: "show-448d0.firebaseapp.com",
-    projectId: "show-448d0",
-    storageBucket: "show-448d0.appspot.com",
-    messagingSenderId: "1094257467234",
-    appId: "1:1094257467234:web:284e06d3518e19af6cd63b"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  function enviarPedido(){
-    const pedidoEl = document.getElementById("pedido");
-    const respostaEl = document.getElementById("resposta");
-    const musica = pedidoEl.value.trim();
-
-    if(!musica){
-      respostaEl.innerText = "Por favor escreve uma música!";
-      return;
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 2rem;
+      text-align: center;
     }
 
-    db.collection("pedidos").add({
-      musica: musica,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(()=>{
-      respostaEl.innerText = "Pedido enviado! 🎉";
-      pedidoEl.value = "";
-    }).catch(()=>{
-      respostaEl.innerText = "Erro ao enviar pedido.";
-    });
-  }
-</script>
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      margin: 0.5rem;
+    }
+
+    input {
+      width: 80%;
+      max-width: 400px;
+    }
+
+    button {
+      background: #0f0;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .musica {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #222;
+      border-radius: 10px;
+      text-align: left;
+      position: relative;
+    }
+
+    .barra {
+      background: #444;
+      border-radius: 5px;
+      overflow: hidden;
+      height: 20px;
+      margin: 0.5rem 0;
+    }
+
+    .preenchimento {
+      background: #0f0;
+      height: 100%;
+      text-align: right;
+      padding-right: 5px;
+      color: #000;
+      font-weight: bold;
+    }
+
+    .votado {
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <h2>🎵 Pede uma Música ou Vota numa Existente</h2>
+  <input id="novaMusica" type="text" placeholder="Nome da música/artista">
+  <button onclick="adicionarMusica()">Enviar</button>
+  <p id="resposta"></p>
+
+  <div id="listaMusicas" style="margin-top:2rem;"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDinh9iXkoxBeHQJ4F7F1sHKTtFVId58cs",
+      authDomain: "show-448d0.firebaseapp.com",
+      projectId: "show-448d0",
+      storageBucket: "show-448d0.appspot.com",
+      messagingSenderId: "1094257467234",
+      appId: "1:1094257467234:web:284e06d3518e19af6cd63b"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const listaEl = document.getElementById("listaMusicas");
+    const respostaEl = document.getElementById("resposta");
+
+    function getVotadas() {
+      return JSON.parse(localStorage.getItem("votadas") || "[]");
+    }
+
+    function setVotada(nome) {
+      const votos = getVotadas();
+      votos.push(nome);
+      localStorage.setItem("votadas", JSON.stringify(votos));
+    }
+
+    function adicionarMusica() {
+      const nome = document.getElementById("novaMusica").value.trim();
+      if (!nome) {
+        respostaEl.innerText = "Escreve o nome da música!";
+        return;
+      }
+
+      const jaVotadas = getVotadas();
+      if (jaVotadas.includes(nome)) {
+        respostaEl.innerText = "Já votaste nesta música.";
+        return;
+      }
+
+      // Verifica se já existe
+      db.collection("pedidos").where("musica", "==", nome).get().then(snapshot => {
+        if (!snapshot.empty) {
+          votarMusica(nome);
+        } else {
+          db.collection("pedidos").add({
+            musica: nome,
+            votos: 1,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          }).then(() => {
+            setVotada(nome);
+            document.getElementById("novaMusica").value = "";
+            respostaEl.innerText = "Pedido enviado!";
+          });
+        }
+      });
+    }
+
+    function votarMusica(nome) {
+      const jaVotadas = getVotadas();
+      if (jaVotadas.includes(nome)) {
+        alert("Já votaste nesta música.");
+        return;
+      }
+
+      db.collection("pedidos").where("musica", "==", nome).get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const ref = doc.ref;
+          ref.update({
+            votos: firebase.firestore.FieldValue.increment(1)
+          }).then(() => {
+            setVotada(nome);
+          });
+        });
+      });
+    }
+
+    function renderizarLista() {
+      db.collection("pedidos").orderBy("votos", "desc").onSnapshot(snapshot => {
+        listaEl.innerHTML = "";
+        let total = 0;
+        snapshot.forEach(doc => total += doc.data().votos || 0);
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const nome = data.musica;
+          const votos = data.votos || 0;
+          const percent = total > 0 ? Math.round((votos / total) * 100) : 0;
+          const votadas = getVotadas();
+
+          const div = document.createElement("div");
+          div.className = "musica" + (votadas.includes(nome) ? " votado" : "");
+
+          const titulo = document.createElement("strong");
+          titulo.innerText = nome;
+          div.appendChild(titulo);
+
+          const barra = document.createElement("div");
+          barra.className = "barra";
+          barra.innerHTML = `<div class="preenchimento" style="width:${percent}%">${votos}</div>`;
+          div.appendChild(barra);
+
+          const botao = document.createElement("button");
+          botao.innerText = votadas.includes(nome) ? "Já votaste" : "Votar";
+          botao.disabled = votadas.includes(nome);
+          botao.onclick = () => votarMusica(nome);
+          div.appendChild(botao);
+
+          listaEl.appendChild(div);
+        });
+      });
+    }
+
+    renderizarLista();
+  </script>
 </body>
 </html>
