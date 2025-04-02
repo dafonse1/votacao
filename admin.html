@@ -86,18 +86,23 @@
 </div>
 
 
-  <script>
-    const PASSWORD = "qrcode2024"; // muda aqui se quiseres
+<script>
+  const PASSWORD = "qrcode2024"; // muda aqui se quiseres
 
-    function verificarSenha() {
-      const senha = document.getElementById("senha").value;
-      if (senha === PASSWORD) {
-        document.getElementById("login").style.display = "none";
-        document.getElementById("painel").style.display = "block";
-      } else {
-        document.getElementById("erro").innerText = "Password incorreta.";
-      }
+  function verificarSenha() {
+    const senha = document.getElementById("senha").value;
+    if (senha === PASSWORD) {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("painel").style.display = "block";
+
+      // ✅ Agora sim, ativa os pedidos só após o login correto!
+      mostrarPedidosAoVivo();
+
+    } else {
+      document.getElementById("erro").innerText = "Password incorreta.";
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
