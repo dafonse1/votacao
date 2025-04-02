@@ -68,9 +68,9 @@
 <body>
   <h2>🎵 Pede uma Música ou Vota numa Existente</h2>
   <input id="novaMusica" type="text" placeholder="Nome da música/artista">
-  <button onclick="adicionarMusica()">Enviar</button>
+  <button id="botaoEnviar" onclick="adicionarMusica()">Enviar</button>
   <p id="resposta"></p>
-<p id="musicaVotadaTexto" style="margin-top:1rem; font-style: italic; color: #0f0;"></p>
+  <p id="musicaVotadaTexto" style="margin-top:1rem; font-style: italic; color: #0f0;"></p>
 
   <div id="listaMusicas" style="margin-top:2rem;"></div>
 
@@ -88,14 +88,19 @@
 
     const listaEl = document.getElementById("listaMusicas");
     const respostaEl = document.getElementById("resposta");
+    const musicaVotadaTexto = document.getElementById("musicaVotadaTexto");
+    const inputEl = document.getElementById("novaMusica");
+    const botaoEnviar = document.getElementById("botaoEnviar");
 
-    // Anti-spam: só 1 voto por utilizador
     function getVotada() {
       return localStorage.getItem("musica_votada");
     }
 
     function setVotada(nome) {
       localStorage.setItem("musica_votada", nome);
+      inputEl.disabled = true;
+      botaoEnviar.disabled = true;
+      musicaVotadaTexto.innerText = `🎧 Já votaste na música: "${nome}"`;
     }
 
     function jaVotou() {
@@ -103,7 +108,7 @@
     }
 
     function adicionarMusica() {
-      const nome = document.getElementById("novaMusica").value.trim();
+      const nome = inputEl.value.trim();
       if (!nome) {
         respostaEl.innerText = "Escreve o nome da música!";
         return;
@@ -114,7 +119,6 @@
         return;
       }
 
-      // Verifica se já existe
       db.collection("pedidos").where("musica", "==", nome).get().then(snapshot => {
         if (!snapshot.empty) {
           votarMusica(nome);
@@ -125,7 +129,7 @@
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
           }).then(() => {
             setVotada(nome);
-            document.getElementById("novaMusica").value = "";
+            inputEl.value = "";
             respostaEl.innerText = "Pedido enviado!";
           });
         }
@@ -156,6 +160,11 @@
         snapshot.forEach(doc => total += doc.data().votos || 0);
 
         const votada = getVotada();
+        if (votada) {
+          inputEl.disabled = true;
+          botaoEnviar.disabled = true;
+          musicaVotadaTexto.innerText = `🎧 Já votaste na música: "${votada}"`;
+        }
 
         snapshot.forEach(doc => {
           const data = doc.data();
