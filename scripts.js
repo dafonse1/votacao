@@ -103,10 +103,6 @@ function mostrarPedidosAoVivo() {
     });
 }
 
-// Ativar pedidos ao carregar admin
-if (window.location.pathname.includes("admin.html")) {
-  mostrarPedidosAoVivo();
-}
 
 // Restante código que já tens:
 
