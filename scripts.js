@@ -87,22 +87,6 @@ function gerarQRCodes() {
       alert("Erro ao gerar a votação.");
     });
 }
-// Mostrar pedidos de músicas ao vivo
-function mostrarPedidosAoVivo() {
-  const listaPedidos = document.getElementById("listaPedidos");
-  db.collection("pedidos").orderBy("timestamp", "desc")
-    .onSnapshot(snapshot => {
-      listaPedidos.innerHTML = "";
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const item = document.createElement("li");
-        item.style.margin = "0.5rem 0";
-        item.innerText = data.musica;
-        listaPedidos.appendChild(item);
-      });
-    });
-}
-
 
 // Restante código que já tens:
 
@@ -189,4 +173,20 @@ function mostrarContagemVotos() {
     });
     contador.innerText = `${m1}: ${v1} votos\n${m2}: ${v2} votos`;
   });
+}
+
+// Mostrar pedidos de músicas ao vivo
+function mostrarPedidosAoVivo() {
+  const listaPedidos = document.getElementById("listaPedidos");
+  db.collection("pedidos").orderBy("timestamp", "desc")
+    .onSnapshot(snapshot => {
+      listaPedidos.innerHTML = "";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const item = document.createElement("li");
+        item.style.margin = "0.5rem 0";
+        item.innerText = data.musica;
+        listaPedidos.appendChild(item);
+      });
+    });
 }
