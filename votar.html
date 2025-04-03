@@ -46,7 +46,7 @@
       })
         .then(() => {
           localStorage.setItem(chave, "true");
-          mensagemEl.innerText = `✅ Votaste em "${musica}". Obrigado!`;
+          mensagemEl.innerText = ` Votaste em "${musica}". Obrigado!`;
           emojiEl.innerText = "✅";
           document.querySelector(".container").classList.add("success");
         })
