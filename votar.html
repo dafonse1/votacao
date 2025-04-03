@@ -1,12 +1,121 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Votação</title>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-  <script src="scripts.js" defer></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDinh9iXkoxBeHQJ4F7F1sHKTtFVId58cs",
+      authDomain: "show-448d0.firebaseapp.com",
+      projectId: "show-448d0",
+      storageBucket: "show-448d0.appspot.com",
+      messagingSenderId: "1094257467234",
+      appId: "1:1094257467234:web:284e06d3518e19af6cd63b"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const musica = params.get("musica");
+      const votacao = params.get("votacao");
+      const chave = "votou_" + votacao;
+
+      const mensagemEl = document.getElementById("mensagem");
+      const emojiEl = document.getElementById("emoji");
+
+      if (!musica || !votacao) {
+        mensagemEl.innerText = "❌ Link inválido.";
+        emojiEl.innerText = "❌";
+        return;
+      }
+
+      if (localStorage.getItem(chave)) {
+        mensagemEl.innerText = "⚠️ Já votaste nesta votação.";
+        emojiEl.innerText = "⚠️";
+        return;
+      }
+
+      db.collection("votos").add({
+        musica: musica,
+        votacao: votacao,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      })
+        .then(() => {
+          localStorage.setItem(chave, "true");
+          mensagemEl.innerText = `✅ Votaste em "${musica}". Obrigado!`;
+          emojiEl.innerText = "✅";
+          document.querySelector(".container").classList.add("success");
+        })
+        .catch((err) => {
+          console.error("Erro ao votar:", err);
+          mensagemEl.innerText = "❌ Erro ao registar o voto.";
+          emojiEl.innerText = "❌";
+          document.querySelector(".container").classList.add("error");
+        });
+    });
+  </script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.75);
+      padding: 3rem 2rem;
+      border-radius: 1rem;
+      color: white;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      transition: background-color 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    .container.success {
+      background-color: rgba(0, 128, 0, 0.7);
+      box-shadow: 0 0 30px rgba(0, 255, 0, 0.7);
+    }
+
+    .container.error {
+      background-color: rgba(128, 0, 0, 0.7);
+      box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .emoji {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .container.success .emoji {
+      transform: scale(1.2);
+    }
+  </style>
 </head>
 <body>
-  <h1 id="mensagem">A processar o teu voto...</h1>
+  <div class="container">
+    <span class="emoji" id="emoji">🎵</span>
+    <h1 id="mensagem">A processar o teu voto...</h1>
+  </div>
 </body>
 </html>
