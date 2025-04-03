@@ -6,6 +6,73 @@
   <title>Votação</title>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #000;
+      color: #fff;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background-color: #111;
+      padding: 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      max-width: 90vw;
+      width: 100%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .emoji {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    #mensagem {
+      font-size: 1.4rem;
+      line-height: 1.4;
+    }
+
+    .success {
+      background-color: #0a4;
+      color: #fff;
+    }
+
+    .error {
+      background-color: #a00;
+      color: #fff;
+    }
+
+    .warning {
+      background-color: #aa0;
+      color: #000;
+    }
+
+    .container.success, .container.error, .container.warning {
+      transition: all 0.4s ease;
+      animation: pulse 0.6s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="caixa">
+    <span class="emoji" id="emoji">🎵</span>
+    <h1 id="mensagem">A processar o teu voto...</h1>
+  </div>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDinh9iXkoxBeHQJ4F7F1sHKTtFVId58cs",
@@ -26,16 +93,19 @@
 
       const mensagemEl = document.getElementById("mensagem");
       const emojiEl = document.getElementById("emoji");
+      const caixa = document.getElementById("caixa");
 
       if (!musica || !votacao) {
         mensagemEl.innerText = "❌ Link inválido.";
         emojiEl.innerText = "❌";
+        caixa.classList.add("error");
         return;
       }
 
       if (localStorage.getItem(chave)) {
         mensagemEl.innerText = "⚠️ Já votaste nesta votação.";
         emojiEl.innerText = "⚠️";
+        caixa.classList.add("warning");
         return;
       }
 
@@ -44,78 +114,18 @@
         votacao: votacao,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       })
-        .then(() => {
-          localStorage.setItem(chave, "true");
-          mensagemEl.innerText = ` Votaste em "${musica}". Obrigado!`;
-          emojiEl.innerText = "✅";
-          document.querySelector(".container").classList.add("success");
-        })
-        .catch((err) => {
-          console.error("Erro ao votar:", err);
-          mensagemEl.innerText = "❌ Erro ao registar o voto.";
-          emojiEl.innerText = "❌";
-          document.querySelector(".container").classList.add("error");
-        });
+      .then(() => {
+        localStorage.setItem(chave, "true");
+        mensagemEl.innerText = `✅ Votaste em:\n"${musica}"`;
+        emojiEl.innerText = "✅";
+        caixa.classList.add("success");
+      })
+      .catch(() => {
+        mensagemEl.innerText = "❌ Erro ao registar o voto.";
+        emojiEl.innerText = "❌";
+        caixa.classList.add("error");
+      });
     });
   </script>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      background: url('https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f') no-repeat center center fixed;
-      background-size: cover;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .container {
-      background-color: rgba(0, 0, 0, 0.75);
-      padding: 3rem 2rem;
-      border-radius: 1rem;
-      color: white;
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-      transition: background-color 0.5s ease, box-shadow 0.5s ease;
-    }
-
-    .container.success {
-      background-color: rgba(0, 128, 0, 0.7);
-      box-shadow: 0 0 30px rgba(0, 255, 0, 0.7);
-    }
-
-    .container.error {
-      background-color: rgba(128, 0, 0, 0.7);
-      box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
-    }
-
-    h1 {
-      font-size: 1.6rem;
-      margin: 0;
-      line-height: 1.5;
-    }
-
-    .emoji {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      display: block;
-      transition: transform 0.5s ease;
-    }
-
-    .container.success .emoji {
-      transform: scale(1.2);
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <span class="emoji" id="emoji">🎵</span>
-    <h1 id="mensagem">A processar o teu voto...</h1>
-  </div>
 </body>
 </html>
